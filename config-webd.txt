@@ -2,8 +2,13 @@
 # config-webd.txt
 #
 
+# WWW base path
+# Default is /quixdate
+# This sets base path to empty:
+#-path=
+
 # Install static file handler for www root path
--static=/static:/tmp/devel/quixdate/wwwroot
+-static=static:/tmp/devel/quixdate/wwwroot,/static-abs:/tmp/devel/quixdate/wwwroot-abs
 
 # Location of www templates
 -template=/tmp/devel/quixdate/template

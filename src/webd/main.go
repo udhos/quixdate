@@ -53,6 +53,9 @@ func main() {
 		return
 	}
 
+	// Base path
+	log.Printf("www base path: %s", basePath)
+
 	// Set template path
 	log.Printf("template root path: %s", templatePath)
 	if templatePath == "" {
@@ -72,6 +75,9 @@ func main() {
 				return
 			}
 			p := pDir[0]
+			if p[0] != '/' {
+				p = basePath + "/" + p // prepend base path
+			}
 			dir := pDir[1]
 			log.Printf("installing static handler from path %s to directory %s", p, dir)
 			http.Handle(p, StaticHandler{http.StripPrefix(p, http.FileServer(http.Dir(dir)))})
@@ -79,11 +85,28 @@ func main() {
 	}
 
 	// Set dynamic content paths
-	http.HandleFunc(basePath+"/", func(w http.ResponseWriter, r *http.Request) { trapHandle(w, r, handlerHome) })
+	var homePath string
+	if basePath == "" {
+		homePath = "/"
+	} else {
+		homePath = basePath
+	}
+	log.Printf("installing dynamic handler for path: home=%s", homePath)
+	http.HandleFunc(homePath, func(w http.ResponseWriter, r *http.Request) { trapHandle(w, r, handlerHome) })
+
+	if homePath != "/" {
+		log.Printf("installing not-found handler on root path")
+		http.HandleFunc("/", notFound) // trap not-found handler
+	}
 
 	log.Printf("webd boot complete")
 
 	serve(listenAddr)
+}
+
+func notFound(w http.ResponseWriter, r *http.Request) {
+	log.Printf("notFound: url=%s", r.URL.Path)
+	http.NotFound(w, r) // default not-found handler
 }
 
 type session struct {
@@ -97,8 +120,7 @@ func trapHandle(w http.ResponseWriter, r *http.Request, handler func(http.Respon
 
 func handlerHome(w http.ResponseWriter, r *http.Request, s *session) {
 	path := r.URL.Path
-
-	log.Printf("handlerHome url=%s", path)
+	log.Printf("dynamic handlerHome url=%s", path)
 }
 
 func sessionGet(r *http.Request) *session {

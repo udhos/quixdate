@@ -1,0 +1,17 @@
+#
+# config-webd.txt
+#
+
+# Install static file handler for www root path
+-static=/static:/tmp/devel/quixdate/wwwroot
+
+# Location of www templates
+-template=/tmp/devel/quixdate/template
+
+# If you want to run on non-default host:port
+# Default host:port is :8080
+#-listenOn=:8000
+	
+#
+# end-of-file
+#
